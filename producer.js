@@ -1,4 +1,4 @@
-import { Kafka }from 'kafkajs'
+import { Kafka } from 'kafkajs'
 import { spawn } from 'child_process'
 
 class KafkaProducer {
@@ -114,10 +114,17 @@ while (true) {
   const sent = await Promise.all([
     kafka.send('topic1', 'hi topic1, partition0', 0),
     kafka.send('topic1', 'hi topic1, partition1', 1),
-    kafka.send('topic2', 'hi topic2, partition0', 0),
+    kafka.send('topic1', 'hi topic1, partition0', 0),
+    kafka.send('topic1', 'hi topic1, partition1', 1),
     kafka.send('topic2', 'hi topic2, partition1', 1),
     kafka.send('topic3', 'hi topic3, partition0', 0),
+    kafka.send('topic3', 'hi topic3, partition0', 0),
+    kafka.send('topic3', 'hi topic3, partition0', 0),
     kafka.send('topic3', 'hi topic3, partition1', 1),
+    kafka.send('topic4', 'hi topic4, partition0', 0),
+    kafka.send('topic4', 'hi topic4, partition0', 0),
+    kafka.send('topic4', 'hi topic4, partition0', 0),
+    kafka.send('topic4', 'hi topic4, partition0', 0),
     kafka.send('topic4', 'hi topic4, partition0', 0),
     kafka.send('topic4', 'hi topic4, partition1', 1),
   ])

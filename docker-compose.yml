@@ -22,6 +22,8 @@ services:
       com.sun.management.jmxremote.port: 3002
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - zookeeper
 
   prometheus:
     image: prom/prometheus
@@ -30,4 +32,6 @@ services:
     volumes:
       - ./mount/prometheus:/etc/prometheus
     links:
+      - kafka
+    depends_on:
       - kafka

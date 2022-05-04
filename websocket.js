@@ -1,4 +1,6 @@
 import WebSocket from 'ws'
+import express from 'express'
+import client from 'prom-client'
 
 function WebSocketClient() {
     this.number = 0;	// Message number
@@ -50,9 +52,32 @@ WebSocketClient.prototype.reconnect = function (e) {
         that.open(that.url);
     }, this.autoReconnectInterval);
 }
-WebSocketClient.prototype.onopen = function (e) { console.log("WebSocketClient: open", arguments); }
+WebSocketClient.prototype.onopen = function (...e) { console.log("WebSocketClient: open", ...e); }
 WebSocketClient.prototype.onmessage = function (data, flags, number) { console.log("WebSocketClient: message", arguments); }
-WebSocketClient.prototype.onerror = function (e) { console.log("WebSocketClient: error", arguments); }
-WebSocketClient.prototype.onclose = function (e) { console.log("WebSocketClient: closed", arguments); }
+WebSocketClient.prototype.onerror = function (...e) { console.log("WebSocketClient: error", ...e); }
+WebSocketClient.prototype.onclose = function (...e) { console.log("WebSocketClient: closed", ...e); }
 
-export default WebSocketClient;
+const ENDPOINT = process.env.ENDPOINT ?? 'ws://kafka:7071'
+
+const app = express()
+
+const gauge = new client.Gauge({
+  name: 'websocket',
+  help: 'websocket_help',
+  labelNames: ['status']
+});
+
+const ws = new WebSocketClient();
+ws.open(ENDPOINT);
+ws.onopen = function (e) {
+  gauge.labels('status').set(1);
+}
+ws.onerror = function (e) {
+  gauge.labels('status').set(0);
+}
+
+app.get('/metrics', (req, res) => {
+  res.end(client.register.metrics());
+});
+
+app.listen(9189);
